@@ -1,15 +1,14 @@
 import { useContext, useRef, useState } from "react";
 import axiosClient from "../axiosClient";
 import Context from "../ContextProvider";
-import { Navigate } from "react-router-dom";
+import { Navigate, NavLink } from "react-router-dom";
 import { Button, Form, Input } from "antd";
 
 export default function Signup() {
-   
   // States For Form input Data //
-    const [emailRef, setEmailRef] = useState();
-    const [passwordRef, setPasswordRef] = useState();
-    // States For Form input Data //
+  const [emailRef, setEmailRef] = useState();
+  const [passwordRef, setPasswordRef] = useState();
+  // States For Form input Data //
 
   const [error, setErrors] = useState();
   const { setcurrentUser, setUserToken, currentUser, userToken } =
@@ -35,11 +34,11 @@ export default function Signup() {
   const onSubmitField = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
-  
+
   if (userToken) {
     return <Navigate to={"/"} />;
   }
-  
+
   return (
     <>
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -106,63 +105,78 @@ export default function Signup() {
           })} */}
         {/* error those met from server */}
 
-      <div className="">
-      <Form
-          name="login_form"
-          labelCol={{
-            span: 24,
-          }}
-          wrapperCol={{
-            span: 24,
-          }}
-          style={{
-            maxWidth: 600,
-          }}
-          initialValues={{
-            remember: true,
-          }}
-          onFinish={onSubmit}
-          onFinishFailed={onSubmitField}
-          autoComplete="off"
-        >
-          <Form.Item
-          style={{marginBottom: '10px'}}
-            label="Email"
-            name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please type your email adress!",
-              },
-            ]}
-          >
-            <Input size="large" onChange={(e) => setEmailRef(e.target.value)}/>
-          </Form.Item>
-
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: "Please type your password!",
-              },
-            ]}
-          >
-            <Input.Password size="large" onChange={(e) => setPasswordRef(e.target.value)}/>
-          </Form.Item>
-
-          <Form.Item
+        <div className="">
+          <Form
+            name="login_form"
+            labelCol={{
+              span: 24,
+            }}
             wrapperCol={{
               span: 24,
             }}
+            style={{
+              maxWidth: 600,
+            }}
+            initialValues={{
+              remember: true,
+            }}
+            onFinish={onSubmit}
+            onFinishFailed={onSubmitField}
+            autoComplete="off"
           >
-            <Button type="primary" htmlType="submit">
-              Login
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
+            <Form.Item
+              style={{ marginBottom: "10px" }}
+              label="Email"
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  message: "Please type your email adress!",
+                },
+              ]}
+            >
+              <Input
+                size="large"
+                onChange={(e) => setEmailRef(e.target.value)}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please type your password!",
+                },
+              ]}
+            >
+              <Input.Password
+                size="large"
+                onChange={(e) => setPasswordRef(e.target.value)}
+              />
+            </Form.Item>
+
+            <Form.Item
+              wrapperCol={{
+                span: 24,
+              }}
+            >
+              <Button type="primary" htmlType="submit">
+                Login
+              </Button>
+            </Form.Item>
+          </Form>
+          <p class="mt-10 text-center text-sm text-gray-500">
+            Dont have an account?
+            <NavLink
+              to={"/regestration/signup"}
+              className="ml-2 font-semibold leading-6 !text-indigo-600 !hover:text-indigo-500"
+            >
+              Registor your account!
+            </NavLink>
+          </p>
+        </div>
       </div>
     </>
   );
