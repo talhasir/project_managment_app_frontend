@@ -1,117 +1,140 @@
-// import { data } from "autoprefixer";
-// import { columns } from "../Component Api Variables/ProjectsTableVars";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PageComponent from "../Layouts/ViewLayout";
-import { Button, Space, Table, Tag } from "antd";
+import { Button, Input, Pagination, Popover, Space, Table, Tag } from "antd";
 import axiosClient from "../axiosClient";
 
-const columns = [
-  {
-    title: "ID",
-    dataIndex: "id",
-    key: "id",
-    render: (text) => <span>{text}</span>,
-  },
-  {
-    title: "IMAGE",
-    dataIndex: "image",
-    key: "image",
-  },
-  {
-    title: "NAME",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "STATUS",
-    key: "status",
-    dataIndex: "status",
-    render: (_, { tags }) => (
-      <>
-        {tags.map((tag) => {
-          let color = tag.length > 5 ? "geekblue" : "green";
-          if (tag === "loser") {
-            color = "volcano";
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </>
-    ),
-  },
-  {
-    title: "CREATE DATE",
-    dataIndex: "created_at",
-    key: "created_at",
-  },
-  {
-    title: "DUE DATE",
-    dataIndex: "due_date",
-    key: "due_date",
-  },
-  {
-    title: "CREATED BY",
-    dataIndex: "created_by",
-    key: "created_by",
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: (_, record) => (
-      <Space size="middle">
-        <Button type="primary" size="small">
-          Edit
-        </Button>
-        <Button type="primary" danger size="small">
-          Delete
-        </Button>
-        {/* <a className="text-red-600 hover:text-red-300 hover:ring-offset-2 ring-2 ring-red-300 rounded px-3 py-1">Delete</a> */}
-      </Space>
-    ),
-  },
-];
-const data = [
-  {
-    key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-];
-
 function Projects(props) {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({});
+  console.log(pagination);
+  const fetchProjects = async (page = 1) => {
+    setLoading(true);
+    try {
+      const res = await axiosClient.get(`/projects?page=${page}`);
+      const { data } = res?.data?.projects;
+      setProjects(data);
+      setLoading(false);
+      console.log(res);
+      setPagination({
+        current: res?.data?.projects?.current_page,
+        pageSize: res?.data?.projects?.per_page,
+        total: res?.data?.projects?.total,
+      });
+    } catch (error) {
+      console.log("Error fetching projects:", error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    axiosClient
-      .get("/projects")
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-  });
+    fetchProjects();
+  }, []);
+
+  const STATUS_TEXT = {
+    completed: "Completed",
+    pending: "Pending",
+    in_process: "In Process",
+  };
+
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      render: (text) => <span>{text}</span>,
+    },
+    {
+      title: "NAME",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "IMAGE",
+      dataIndex: "image_path",
+      key: "image_path",
+      render: (text) => <img src={text} alt="Image" className="w-12 h-auto" />,
+    },
+    {
+      title: "STATUS",
+      dataIndex: "status",
+      key: "status",
+      render: (text) => <span>{STATUS_TEXT[text]}</span>,
+    },
+    {
+      title: "CREATE DATE",
+      dataIndex: "create_date",
+      key: "create_date",
+      render: (text) => <span>{text}</span>,
+    },
+    {
+      title: "DUE DATE",
+      dataIndex: "due_date",
+      key: "due_date",
+      render: (text) => <span>{text}</span>,
+    },
+    {
+      title: "DESCRIPTION",
+      dataIndex: "description",
+      key: "description",
+      render: (text) => (
+        <Popover
+          content={<span style={{ whiteSpace: "wrap" }}>{text}</span>}
+          style={{ width: 300 }}
+        >
+          <div
+            style={{
+              width: 100,
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {text}
+          </div>
+        </Popover>
+      ),
+    },
+    {
+      title: "CREATED BY",
+      dataIndex: "createdBy",
+      key: "createdBy",
+    },
+    {
+      title: "ACTIONS",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button type="primary" size="small">
+            Edit
+          </Button>
+          <Button type="primary" danger size="small">
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    fetchProjects(pagination.current);
+  };
+
   return (
-    <>
-      <PageComponent heading="Projects">
-        <div>
-          <Table bordered color columns={columns} dataSource={data} />
-        </div>
-      </PageComponent>
-    </>
+    <PageComponent heading="Projects">
+      <div>
+        <Input placeholder="search"/>
+        <Table
+          loading={loading}
+          bordered
+          sticky
+          columns={columns}
+          dataSource={projects}
+          pagination={pagination}
+          onChange={handleTableChange}
+        />
+      </div>
+    </PageComponent>
   );
 }
 
