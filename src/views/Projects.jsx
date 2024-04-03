@@ -1,16 +1,28 @@
 import { useEffect, useState } from "react";
 import PageComponent from "../Layouts/ViewLayout";
-import { Button, Input, Pagination, Popover, Space, Table, Tag } from "antd";
+import {
+  Button,
+  Input,
+  Popover,
+  Space,
+  Table,
+  Select,
+} from "antd";
 import axiosClient from "../axiosClient";
+import { useSearchParams } from "react-router-dom";
 
 function Projects(props) {
   const [projects, setProjects] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(false);
-  const fetchProjects = async (page = 1) => {
+  const [searchParams, setSearchParams] = useSearchParams({});
+
+  const fetchProjects = async (page = 1, filters) => {
     setLoading(true);
     try {
-      const res = await axiosClient.get(`/projects?page=${page}`);
+      const res = await axiosClient.get(`/projects?page=${page}`, {
+        params: filters,
+      });
       const { data, pagination } = res?.data?.projects;
       setProjects(data);
       setLoading(false);
@@ -56,7 +68,7 @@ function Projects(props) {
       title: "ID",
       dataIndex: "id",
       key: "id",
-      render: (text) => <span>{text}</span>,
+      render: (text) => <span className="font-bold">{text}</span>,
     },
     {
       title: "NAME",
@@ -137,13 +149,44 @@ function Projects(props) {
   ];
 
   const handleTableChange = (pagination, filters, sorter) => {
-    fetchProjects(pagination.current);
+    fetchProjects(pagination.current, filters);
   };
+
+  const SELECT_STATUS_OPTIONS = [
+    { lable: "completed", value: "Completed" },
+    { lable: "pending", value: "Pending" },
+    { lable: "in_process", value: "In Process" },
+  ];
 
   return (
     <PageComponent heading="Projects">
-      <div>
-        <Input placeholder="search" />
+      <>
+        <div className="grid grid-cols-10 my-3 gap-3">
+          <Input
+            placeholder="Search By Name"
+            name="search"
+            size="large"
+            className="col-span-3"
+            onChange={(e) =>
+              setSearchParams({ ...searchParams, search: e.target.value })
+            }
+            onKeyDown={(e) =>
+              e.key === "Enter" ? fetchProjects("", searchParams) : ""
+            }
+          />
+          <Select
+            defaultValue={"Filter By Status"}
+            size="large"
+            className="col-span-2"
+            options={SELECT_STATUS_OPTIONS}
+            onChange={(value) =>
+              setSearchParams({ ...searchParams, select: value })
+            }
+          />
+          <Button type="primary" size="large">
+            Reset
+          </Button>
+        </div>
         <Table
           loading={loading}
           bordered
@@ -153,7 +196,7 @@ function Projects(props) {
           pagination={pagination}
           onChange={handleTableChange}
         />
-      </div>
+      </>
     </PageComponent>
   );
 }
