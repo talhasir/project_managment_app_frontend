@@ -1,14 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button, Input, Popover, Space, Table } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
+import {
+  TASK_PRIORITY_CLASS,
+  TASK_PRIORITY_TEXT,
+  TASK_STATUS_CLASS,
+  TASK_STATUS_TEXT,
+} from "./TableVariables";
+import { NavLink } from "react-router-dom";
 
 function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
 
-
+  console.log(tasks);
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
@@ -131,7 +138,16 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
       render: (text) => <span className="font-bold">{text}</span>,
     },
     {
-      title: "NAME",
+      title: "PROJECTS NAME",
+      dataIndex: "project_name",
+      key: "project_name",
+      ...getColumnSearchProps("project_name"),
+      render: (text) => (
+        <NavLink className="font-bold hover:underline">{text}</NavLink>
+      ),
+    },
+    {
+      title: "Name",
       dataIndex: "name",
       ...getColumnSearchProps("name"),
     },
@@ -161,11 +177,43 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
       ],
       render: (text) => (
         <span
-          className={`text-white py-1 px-2 text-xs rounded-md ${PORJECT_STATUS_CLASS[text]}`}
+          className={`text-white py-1 px-2 text-xs rounded-md ${TASK_STATUS_CLASS[text]}`}
         >
-          {PORJECT_STATUS_TEXT[text]}
+          {TASK_STATUS_TEXT[text]}
         </span>
       ),
+    },
+    {
+      title: "PRIORITY",
+      dataIndex: "priority",
+      key: "priority",
+      filters: [
+        {
+          text: "Low",
+          value: "low",
+        },
+        {
+          text: "Medium",
+          value: "medium",
+        },
+        {
+          text: "High",
+          value: "high",
+        },
+      ],
+      render: (text) => (
+        <span
+          className={`text-white py-1 px-2 text-xs rounded-md ${TASK_PRIORITY_CLASS[text]}`}
+        >
+          {TASK_PRIORITY_TEXT[text]}
+        </span>
+      ),
+    },
+    {
+      title: "TO ASSIGNED",
+      dataIndex: "to_assigned",
+      key: "to_assigned",
+      render: (text) => <span>{text}</span>,
     },
     {
       title: "CREATE DATE",

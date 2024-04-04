@@ -15,7 +15,7 @@ function Tasks(props) {
       const res = await axiosClient.get("/tasks", {
         params: { page, filters, sorter },
       });
-      const { data, pagination} = res?.data?.tasks;
+      const { data, pagination } = res?.data?.tasks;
       setTasks(data);
       setLoading(false);
       setPagination({
@@ -28,11 +28,12 @@ function Tasks(props) {
       console.log("Error fetching tasks:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchTasks();
   }, []);
 
+  console.log(tasks);
   return (
     <PageComponent heading={"Tasks"}>
       <TasksTable

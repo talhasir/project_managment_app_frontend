@@ -8,6 +8,7 @@ import Default from "./Layouts/Default";
 import Users from "./views/Users";
 import Projects from "./views/Projects";
 import Tasks from "./views/Tasks";
+import ProjectDescription from "./components/ProjectDescription";
 
 const Routes = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ const Routes = createBrowserRouter([
       { path: "/", element: <Navigate to={"/dashboard"} /> },
       { path: "/users", element: <Users /> },
       { path: "/projects", element: <Projects /> },
+      { path: "/projects/:id", element: <ProjectDescription /> },
       { path: "/tasks", element: <Tasks /> },
     ],
   },

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import PageComponent from "../Layouts/ViewLayout";
 import { Button, Input, Popover, Space, Table, Select } from "antd";
 import axiosClient from "../axiosClient";
-import { useSearchParams } from "react-router-dom";
+import { NavLink, useSearchParams, Outlet } from "react-router-dom";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import {
@@ -160,6 +160,7 @@ function Projects(props) {
         text
       ),
   });
+  console.log(projects);
   const columns = [
     {
       title: "ID",
@@ -171,6 +172,14 @@ function Projects(props) {
       title: "NAME",
       dataIndex: "name",
       ...getColumnSearchProps("name"),
+      render: (text, project) => (
+        <NavLink
+          to={`/projects/${project?.id}`}
+          className="font-bold hover:underline"
+        >
+          {text}
+        </NavLink>
+      ),
     },
     {
       title: "IMAGE",
@@ -282,6 +291,7 @@ function Projects(props) {
           />
         </div>
       </>
+      <Outlet />
     </PageComponent>
   );
 }
