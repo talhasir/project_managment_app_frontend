@@ -1,50 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import PageComponent from "../Layouts/ViewLayout";
-import { Button, Input, Popover, Space, Table, Select } from "antd";
-import axiosClient from "../axiosClient";
-import { useSearchParams } from "react-router-dom";
+import { Button, Input, Popover, Space, Table } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
-import {
-  PORJECT_STATUS_CLASS,
-  PORJECT_STATUS_TEXT,
-} from "../components/TableVariables";
 
-function Projects(props) {
-  const [projects, setProjects] = useState([]);
-  const [pagination, setPagination] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams({});
-  const [sortParams, setSortParams] = useState({});
-  const [queryParams, setQueryParams] = useState();
+function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
 
-  const fetchProjects = async (page = 1, filters, sorter) => {
-    setLoading(true);
-    try {
-      const res = await axiosClient.get("/projects", {
-        params: { page, filters, sorter },
-      });
-      const { data, pagination, queryParams } = res?.data?.projects;
-      setProjects(data);
-      setLoading(false);
-      setQueryParams(queryParams && queryParams);
-      setPagination({
-        current: pagination?.current_page,
-        pageSize: pagination?.per_page,
-        total: pagination?.total,
-      });
-    } catch (error) {
-      console.log("Error fetching projects:", error);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProjects();
-  }, []);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -54,7 +17,7 @@ function Projects(props) {
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
-    fetchProjects();
+    fetchTasks();
   };
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -264,26 +227,25 @@ function Projects(props) {
     },
   ];
 
-  const handleTableChange = (pagination, filters, sorter) =>
-    fetchProjects(pagination.current, filters, sorter);
+  const handleTableChange = (pagination, filters, sorter) => {
+    fetchTasks(pagination.current, filters, sorter);
+  };
 
   return (
-    <PageComponent heading="Projects">
-      <>
-        <div className="overflow-auto">
-          <Table
-            loading={loading}
-            sticky
-            columns={columns}
-            dataSource={projects}
-            pagination={pagination}
-            onChange={handleTableChange}
-            bordered
-          />
-        </div>
-      </>
-    </PageComponent>
+    <div className="overflow-auto">
+      <Table
+        loading={loading}
+        sticky
+        columns={columns}
+        dataSource={tasks}
+        pagination={pagination}
+        onChange={handleTableChange}
+        bordered
+      >
+        {children}
+      </Table>
+    </div>
   );
 }
 
-export default Projects;
+export default TasksTable;
