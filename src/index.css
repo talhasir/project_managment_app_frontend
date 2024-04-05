@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.custom-table table,
+.custom-table th,
+.custom-table td {
+  font-size: 14px;
+  padding: 1vh 0 !important;
+  text-align: center !important;
+}
+
+.custom-table th{
+  font-size: 14px;
+  padding: 1vh 0.5vw !important;
+  text-align: center !important;
+}

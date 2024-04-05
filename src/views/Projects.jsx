@@ -3,12 +3,21 @@ import PageComponent from "../Layouts/ViewLayout";
 import { Button, Input, Popover, Space, Table, Select } from "antd";
 import axiosClient from "../axiosClient";
 import { NavLink, useSearchParams, Outlet } from "react-router-dom";
-import { SearchOutlined } from "@ant-design/icons";
+import {
+  PlusCircleFilled,
+  PlusCircleOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import {
   PORJECT_STATUS_CLASS,
   PORJECT_STATUS_TEXT,
 } from "../components/TableVariables";
+import { useContext } from "react";
+import Context from "../ContextProvider";
+import AntPopover from "../components/AntPopver";
+import "../index.css";
+import AddNewProject from "../components/AddNewProject";
 
 function Projects(props) {
   const [projects, setProjects] = useState([]);
@@ -160,7 +169,9 @@ function Projects(props) {
         text
       ),
   });
-  console.log(projects);
+
+  const { setIsModalOpen, isModalOpen } = useContext(Context);
+
   const columns = [
     {
       title: "ID",
@@ -177,7 +188,7 @@ function Projects(props) {
           to={`/projects/${project?.id}`}
           className="font-bold hover:underline"
         >
-          {text}
+          <AntPopover>{text}</AntPopover>
         </NavLink>
       ),
     },
@@ -185,7 +196,11 @@ function Projects(props) {
       title: "IMAGE",
       dataIndex: "image_path",
       key: "image_path",
-      render: (text) => <img src={text} alt="Image" className="w-12 h-auto" />,
+      render: (text) => (
+        <div className="flex justify-center items-center">
+          <img src={text} alt="Image" className="w-12 h-auto" />
+        </div>
+      ),
     },
     {
       title: "STATUS",
@@ -233,23 +248,7 @@ function Projects(props) {
       title: "DESCRIPTION",
       dataIndex: "description",
       key: "description",
-      render: (text) => (
-        <Popover
-          content={<span style={{ whiteSpace: "wrap" }}>{text}</span>}
-          style={{ width: 300 }}
-        >
-          <div
-            style={{
-              width: 100,
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {text}
-          </div>
-        </Popover>
-      ),
+      render: (text) => <AntPopover>{text}</AntPopover>,
     },
     {
       title: "CREATED BY",
@@ -277,10 +276,24 @@ function Projects(props) {
     fetchProjects(pagination.current, filters, sorter);
 
   return (
-    <PageComponent heading="Projects">
+    <PageComponent
+      heading="Projects"
+      addNewButtProj={
+        <Button
+          type="primary"
+          size="large"
+          icon={<PlusCircleOutlined />}
+          onClick={() => setIsModalOpen(true)}
+        >
+          Add New Project
+        </Button>
+      }
+    >
       <>
+      {isModalOpen && <AddNewProject />}
         <div className="overflow-auto">
           <Table
+            className="custom-table"
             loading={loading}
             sticky
             columns={columns}

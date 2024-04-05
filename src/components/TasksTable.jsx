@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Button, Input, Popover, Space, Table } from "antd";
+import { Button, Input, Space, Table } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import {
@@ -9,13 +9,15 @@ import {
   TASK_STATUS_TEXT,
 } from "./TableVariables";
 import { NavLink } from "react-router-dom";
+import "../index.css";
+import Popover from "./AntPopver";
+import AntPopover from "./AntPopver";
 
 function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
 
-  console.log(tasks);
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
@@ -150,12 +152,17 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
       title: "Name",
       dataIndex: "name",
       ...getColumnSearchProps("name"),
+      render: (text) => <AntPopover>{text}</AntPopover>,
     },
     {
       title: "IMAGE",
       dataIndex: "image_path",
       key: "image_path",
-      render: (text) => <img src={text} alt="Image" className="w-12 h-auto" />,
+      render: (text) => (
+        <div className="flex justify-center items-center">
+          <img src={text} alt="Image" className="w-12 h-auto" />
+        </div>
+      ),
     },
     {
       title: "STATUS",
@@ -235,23 +242,7 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
       title: "DESCRIPTION",
       dataIndex: "description",
       key: "description",
-      render: (text) => (
-        <Popover
-          content={<span style={{ whiteSpace: "wrap" }}>{text}</span>}
-          style={{ width: 300 }}
-        >
-          <div
-            style={{
-              width: 100,
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {text}
-          </div>
-        </Popover>
-      ),
+      render: (text) => <AntPopover>{text}</AntPopover>,
     },
     {
       title: "CREATED BY",
@@ -282,6 +273,7 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
   return (
     <div className="overflow-auto">
       <Table
+        className="custom-table"
         loading={loading}
         sticky
         columns={columns}

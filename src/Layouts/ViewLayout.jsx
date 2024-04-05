@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function PageComponent({ children, button, heading }) {
+export default function PageComponent({ children, heading, addNewButtProj }) {
   return (
     <>
       <header className="bg-white shadow">
@@ -8,7 +8,7 @@ export default function PageComponent({ children, button, heading }) {
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
             {heading}
           </h1>
-          {button}
+          {addNewButtProj}
         </div>
       </header>
       <main>
