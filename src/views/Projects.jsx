@@ -274,7 +274,7 @@ function Projects(props) {
 
   const handleTableChange = (pagination, filters, sorter) =>
     fetchProjects(pagination.current, filters, sorter);
-
+  console.log(isModalOpen);
   return (
     <PageComponent
       heading="Projects"
@@ -290,7 +290,7 @@ function Projects(props) {
       }
     >
       <>
-      {isModalOpen && <AddNewProject />}
+        {isModalOpen === true && <AddNewProject />}
         <div className="overflow-auto">
           <Table
             className="custom-table"

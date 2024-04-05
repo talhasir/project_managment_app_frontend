@@ -1,25 +1,37 @@
 import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import {
-  Button,
-  DatePicker,
-  Input,
-  Select,
-  Space,
-  Upload,
-} from "antd";
+import { Button, DatePicker, Input, Select, Space } from "antd";
 import AntModal from "./AntModal";
 import { useContext } from "react";
 import Context from "../ContextProvider";
+import axiosClient from "../axiosClient";
+import { InboxOutlined } from "@ant-design/icons";
+import { message, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
+const { Dragger } = Upload;
 
-const normFile = (e) => {
-  if (Array.isArray(e)) {
-    return e;
-  }
-  return e?.fileList;
+const props = {
+  name: "file",
+  action: "https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188",
+  onChange(info) {
+    const { status } = info.file;
+    if (status !== "uploading") {
+      console.log(info.file, info.fileList);
+    }
+    if (status === "done") {
+      message.success(`${info.file.name} file uploaded successfully.`);
+    } else if (status === "error") {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+  },
+  onDrop(e) {
+    console.log("Dropped files", e.dataTransfer.files);
+  },
 };
+
 const AddNewProject = () => {
   const [data, setData] = useState({
     name: "",
@@ -29,6 +41,19 @@ const AddNewProject = () => {
     image_path: null,
   });
   const { setIsModalOpen } = useContext(Context);
+
+  const submitProjectHandler = async (ev) => {
+    ev.preventDefault();
+    try {
+      const res = await axiosClient.post("/projects", data);
+      // setLoading(false);
+      console.log(res);
+    } catch (error) {
+      console.log("Error fetching projects:", error);
+      // setLoading(false);
+    }
+  };
+
   const handleDatePickerChange = (date, dateString) => {
     setData((prevData) => ({
       ...prevData,
@@ -42,15 +67,18 @@ const AddNewProject = () => {
       [key]: value,
     }));
   };
-  const handleSubmitProject = (e) => {
-    e.preventDefault();
+
+  const onFileChange = (ev) => {
+    const imageFile = ev.target.files[0];
+    setData((preValues = { ...preValues, image_path: imageFile }));
     console.log(data);
   };
+
   return (
-    <AntModal heading={'Create New Project'}>
+    <AntModal heading={"Create New Project"}>
       <form
         style={{ display: "flex", flexDirection: "column" }}
-        onSubmit={handleSubmitProject}
+        onSubmit={submitProjectHandler}
       >
         <Space direction="vertical" size="large">
           <div>
@@ -102,18 +130,12 @@ const AddNewProject = () => {
           </div>
 
           <div>
-            <label htmlFor="image">Upload Image:</label>
-            <Upload
-              action="/upload.do"
-              name="image_path"
-              listType="picture-card"
-              showUploadList={false}
-              onChange={(e) => handleInputChange("image_path", e)}
-            >
-              <Button>
-                <PlusOutlined /> Upload Image
-              </Button>
-            </Upload>
+            <label htmlFor="upload_image">Upload Project Image:</label>
+            <input
+              type="file"
+              className="block w-full"
+              onChange={onFileChange}
+            />
           </div>
 
           <div style={{ textAlign: "right" }}>
