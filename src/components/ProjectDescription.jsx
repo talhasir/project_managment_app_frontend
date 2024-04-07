@@ -3,7 +3,7 @@ import { Badge, Card, Descriptions, Space } from "antd";
 import PageComponent from "../Layouts/ViewLayout";
 import { useParams } from "react-router-dom";
 import axiosClient from "../axiosClient";
-import { PORJECT_STATUS_TEXT } from "./TableVariables";
+import { PORJECT_STATUS_CLASS, PORJECT_STATUS_TEXT } from "./TableVariables";
 import DiscriptionPoper from "./AntPopver";
 import TasksTable from "./TasksTable";
 import AntPopover from "./AntPopver";
@@ -19,8 +19,8 @@ export default function ProjectDescription() {
   const fetchTasks = async (page = 1, filters, sorter) => {
     setLoading(true);
     try {
-      const res = await axiosClient.get("/tasks", {
-        params: { page, filters, sorter },
+      const res = await axiosClient.get("/project-assciated-tasks", {
+        params: { page, filters, sorter, id },
       });
       const { data, pagination } = res?.data?.tasks;
       setTasks(data);
@@ -67,7 +67,14 @@ export default function ProjectDescription() {
         },
         {
           label: <span className="font-bold">STATUS</span>,
-          children: PORJECT_STATUS_TEXT[project.status],
+          children: 
+          <span
+          className={`text-white py-1 px-2 text-xs rounded-md ${
+            PORJECT_STATUS_CLASS[project.status]
+          }`}
+        >
+          {PORJECT_STATUS_TEXT[project.status]}
+        </span>
         },
         {
           label: <span className="font-bold">CREATION DATE</span>,

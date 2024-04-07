@@ -4,6 +4,7 @@ import { createStyles, useTheme } from 'antd-style';
 import { useContext } from 'react';
 import { contexts } from 'antd-theme/lib/runtime';
 import Context from '../ContextProvider';
+// import { useHistory } from 'react-router-dom';
 
 const useStyle = createStyles(({ token }) => ({
   'my-modal-mask': {
@@ -17,11 +18,11 @@ const useStyle = createStyles(({ token }) => ({
   },
 }));
 
-const AntModal = ({children, heading}) => {
-  const {isModalOpen, setIsModalOpen} = useContext(Context);
+const AntModal = ({children, heading, isModalOpen}) => {
+  const {setIsModalOpen} = useContext(Context);
   const { styles } = useStyle();
   const token = useTheme();
- 
+  const history = useHistory();
   const classNames = {
     mask: styles['my-modal-mask'],
     header: styles['my-modal-header'],
@@ -41,14 +42,19 @@ const AntModal = ({children, heading}) => {
     //   borderTop: '1px solid #333',
     // },
   };
+
+  // const onCancel = () => {
+  //   debugger
+  //   setIsModalOpen(false);
+  //   history.push('/projects');
+  // }
   return (
       <Modal
         title={heading}
         open={isModalOpen}
         onOk={() => setIsModalOpen(false)}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => onCancel()}
         footer={false}
-        
         classNames={classNames}
         styles={modalStyles}
       >

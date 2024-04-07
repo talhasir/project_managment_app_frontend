@@ -12,8 +12,9 @@ import { NavLink } from "react-router-dom";
 import "../index.css";
 import Popover from "./AntPopver";
 import AntPopover from "./AntPopver";
+import axiosClient from "../axiosClient";
 
-function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
+function TasksTable({ children, tasks, pagination, loading, fetchTasks, flag }) {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
@@ -132,6 +133,22 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
         text
       ),
   });
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    fetchTasks(pagination.current, filters, sorter);
+  };
+  const taskDeleteHandler = async (taskId) => {
+    // debugger
+      try {
+        const res = await axiosClient.delete(`/tasks/${taskId}`);
+        const { data } = res;
+        if (data?.success) {
+          fetchTasks();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+  };
   const columns = [
     {
       title: "ID",
@@ -141,18 +158,22 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
     },
     {
       title: "PROJECTS NAME",
-      dataIndex: "project_name",
-      key: "project_name",
-      ...getColumnSearchProps("project_name"),
-      render: (text) => (
-        <NavLink className="font-bold hover:underline">{text}</NavLink>
-      ),
+      dataIndex: "projects_id",
+      key: "projects_id",
+      ...getColumnSearchProps("projects_id"),
     },
     {
       title: "Name",
       dataIndex: "name",
       ...getColumnSearchProps("name"),
-      render: (text) => <AntPopover>{text}</AntPopover>,
+      render: (text, task) => (
+        <NavLink
+          to={`/task/detials/${task.id}`}
+          className="font-bold hover:underline"
+        >
+          <AntPopover>{text}</AntPopover>
+        </NavLink>
+      ),
     },
     {
       title: "IMAGE",
@@ -218,8 +239,8 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
     },
     {
       title: "TO ASSIGNED",
-      dataIndex: "to_assigned",
-      key: "to_assigned",
+      dataIndex: "assigned_user_id",
+      key: "assigned_user_id",
       render: (text) => <span>{text}</span>,
     },
     {
@@ -255,10 +276,105 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button type="primary" size="small">
-            Edit
+          <NavLink to={`/task/update/${record.id}`}>
+            <Button type="primary" size="small">
+              Edit
+            </Button>
+          </NavLink>
+          <Button
+            type="primary"
+            danger
+            size="small"
+            onClick={(e) => taskDeleteHandler(record.id)}
+          >
+            Delete
           </Button>
-          <Button type="primary" danger size="small">
+        </Space>
+      ),
+    },
+  ];
+  const dashboardTaskCols = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      render: (text) => <span className="font-bold">{text}</span>,
+    },
+    {
+      title: "PROJECTS NAME",
+      dataIndex: "projects_id",
+      key: "projects_id",
+      ...getColumnSearchProps("projects_id"),
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      ...getColumnSearchProps("name"),
+      render: (text, task) => (
+        <NavLink
+          to={`/task/detials/${task.id}`}
+          className="font-bold hover:underline"
+        >
+          <AntPopover>{text}</AntPopover>
+        </NavLink>
+      ),
+    },
+    {
+      title: "STATUS",
+      dataIndex: "status",
+      key: "status",
+      filters: [
+        {
+          text: "Completed",
+          value: "completed",
+        },
+        {
+          text: "Pending",
+          value: "pending",
+        },
+        {
+          text: "In Process",
+          value: "in_process",
+        },
+      ],
+      render: (text) => (
+        <span
+          className={`text-white py-1 px-2 text-xs rounded-md ${TASK_STATUS_CLASS[text]}`}
+        >
+          {TASK_STATUS_TEXT[text]}
+        </span>
+      ),
+    },
+    {
+      title: "DUE DATE",
+      dataIndex: "due_date",
+      key: "due_date",
+      render: (text) => <span>{text}</span>,
+      sorter: (a, b) => a.name.length - b.name.length,
+      sortDirections: ["descend"],
+    },
+    {
+      title: "CREATED BY",
+      dataIndex: "created_by",
+      key: "createdBy",
+      ...getColumnSearchProps("created_by"),
+    },
+    {
+      title: "ACTIONS",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <NavLink to={`/task/update/${record.id}`}>
+            <Button type="primary" size="small">
+              Edit
+            </Button>
+          </NavLink>
+          <Button
+            type="primary"
+            danger
+            size="small"
+            onClick={(e) => taskDeleteHandler(record.id)}
+          >
             Delete
           </Button>
         </Space>
@@ -266,17 +382,13 @@ function TasksTable({ children, tasks, pagination, loading, fetchTasks }) {
     },
   ];
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    fetchTasks(pagination.current, filters, sorter);
-  };
-
   return (
     <div className="overflow-auto">
       <Table
         className="custom-table"
         loading={loading}
         sticky
-        columns={columns}
+        columns={flag=== 'dashboardTable'?dashboardTaskCols:columns}
         dataSource={tasks}
         pagination={pagination}
         onChange={handleTableChange}

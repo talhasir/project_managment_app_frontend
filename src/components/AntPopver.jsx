@@ -9,7 +9,7 @@ function AntPopover({children}) {
         >
           <div
             style={{
-              width: 100,
+              width: 120,
               overflow: "hidden",
               whiteSpace: "nowrap",
               textOverflow: "ellipsis",

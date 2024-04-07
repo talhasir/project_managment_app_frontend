@@ -18,6 +18,7 @@ import Context from "../ContextProvider";
 import AntPopover from "../components/AntPopver";
 import "../index.css";
 import AddNewProject from "../components/AddNewProject";
+import UpdateProject from "../components/UpdateProject";
 
 function Projects(props) {
   const [projects, setProjects] = useState([]);
@@ -28,6 +29,7 @@ function Projects(props) {
   const [queryParams, setQueryParams] = useState();
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const { setIsModalOpen, isModalOpen } = useContext(Context);
   const searchInput = useRef(null);
 
   const fetchProjects = async (page = 1, filters, sorter) => {
@@ -170,7 +172,28 @@ function Projects(props) {
       ),
   });
 
-  const { setIsModalOpen, isModalOpen } = useContext(Context);
+  const projectEditHandler = () => {};
+
+  const projectDeleteHandler = async (projectId) => {
+    // if (!window.prompt("Are you sure to want to delete this project")) {
+    //   return;
+    // }
+    // console.log(project.id);
+    try {
+      // debugger
+      const res = await axiosClient.delete(`/projects/${projectId}`);
+      const {data} = res;
+      if(data?.success === "deleted project successfully"){
+        fetchProjects()
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    fetchProjects(pagination.current, filters, sorter);
+  };
 
   const columns = [
     {
@@ -185,7 +208,7 @@ function Projects(props) {
       ...getColumnSearchProps("name"),
       render: (text, project) => (
         <NavLink
-          to={`/projects/${project?.id}`}
+          to={`/projects/detials/${project?.id}`}
           className="font-bold hover:underline"
         >
           <AntPopover>{text}</AntPopover>
@@ -261,10 +284,17 @@ function Projects(props) {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button type="primary" size="small">
-            Edit
-          </Button>
-          <Button type="primary" danger size="small">
+          <NavLink to={`/projects/update/${record.id}`}>
+            <Button type="primary" size="small">
+              Edit
+            </Button>
+          </NavLink>
+          <Button
+            type="primary"
+            danger
+            size="small"
+            onClick={(e) => projectDeleteHandler(record.id)}
+          >
             Delete
           </Button>
         </Space>
@@ -272,25 +302,29 @@ function Projects(props) {
     },
   ];
 
-  const handleTableChange = (pagination, filters, sorter) =>
-    fetchProjects(pagination.current, filters, sorter);
-  console.log(isModalOpen);
   return (
     <PageComponent
       heading="Projects"
-      addNewButtProj={
-        <Button
-          type="primary"
-          size="large"
-          icon={<PlusCircleOutlined />}
-          onClick={() => setIsModalOpen(true)}
-        >
-          Add New Project
-        </Button>
+      addNewButton={
+        <NavLink to={"/projects/create"}>
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusCircleOutlined />}
+            // onClick={() =>
+            //   setIsModalOpen((preVal) => ({
+            //     ...preVal,
+            //     modalForCreateProject: true,
+            //   }))
+            // }
+          >
+            Add New Project
+          </Button>
+        </NavLink>
       }
     >
       <>
-        {isModalOpen === true && <AddNewProject />}
+        {/* {isModalOpen.modalForCreateProject && <AddNewProject />} */}
         <div className="overflow-auto">
           <Table
             className="custom-table"

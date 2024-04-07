@@ -7,7 +7,7 @@ import { NavLink } from "react-router-dom";
 import { Button } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
 
-function Tasks(props) {
+function MyTasks() {
   const [tasks, setTasks] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ function Tasks(props) {
   const fetchTasks = async (page = 1, filters, sorter) => {
     setLoading(true);
     try {
-      const res = await axiosClient.get("/tasks", {
+      const res = await axiosClient.get("/myTasks", {
         params: { page, filters, sorter },
       });
       const { data, pagination } = res?.data?.tasks;
@@ -38,16 +38,7 @@ function Tasks(props) {
 
   console.log(tasks);
   return (
-    <PageComponent
-      heading="Tasks"
-      addNewButton={
-        <NavLink to={"/task/create"}>
-          <Button type="primary" size="large" icon={<PlusCircleOutlined />}>
-            Add New Task
-          </Button>
-        </NavLink>
-      }
-    >
+    <PageComponent heading="My Tasks">
       <TasksTable
         tasks={tasks}
         pagination={pagination}
@@ -58,4 +49,4 @@ function Tasks(props) {
   );
 }
 
-export default Tasks;
+export default MyTasks;

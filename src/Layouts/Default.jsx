@@ -21,6 +21,7 @@ export default function Default() {
     { name: "Users", href: "/Users", current: false },
     { name: "Projects", href: "/projects", current: false },
     { name: "Tasks", href: "/tasks", current: false },
+    { name: "My Tasks", href: "/task/my-tasks", current: false },  
   ];
   const userNavigation = [{ name: "Logout", href: "#" }];
 
@@ -41,9 +42,6 @@ export default function Default() {
       })
       .catch((err) => console.error(err));
   };
-
-  console.log(currentUser);
-  console.log(user);
   if (!userToken) {
     return <Navigate to={"/regestration/login"} />;
   }
